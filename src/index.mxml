@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="100%"
+			   height="100%"
+			   backgroundColor="#faf7e6"
+			   applicationComplete="init(event)"
+			   currentState="StateLogin" xmlns:login="states.login.*" xmlns:registration="states.registration.*" xmlns:profile="states.profile.*"
+			   >
+	
+	<s:states>
+		<s:State name="StateLogin"/>
+		<s:State name="StateRegistration"/>
+		<s:State name="StateProfile"/>
+	</s:states>
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		
+		mx|Alert {
+			messageStyleName: "alertMessage";
+			cornerRadius: 4;
+			background-color:#ECE9D8;
+			background-alpha:1;
+			button-height:20;
+			button-width:90; 
+			header-height:18;
+			border-alpha:1;
+			border-color:#cccccc;
+			border-thickness-top:2;
+			border-thickness-left:2;
+			border-thickness-right:2;
+			border-thickness-bottom:2;  
+		}
+		.alertMessage {
+			letterSpacing: 0;
+			fontSize: 10;
+			fontWeight: normal;
+			color: black;
+		}
+		
+		mx|ToolTip 
+		{
+			font-size:18px; 
+			font-family:Times New Roman; 
+		}
+		
+		mx|VBox
+		{
+			padding-top:5;
+			padding-left:5;
+			padding-right:5;
+			padding-bottom:5;
+			vertical-gap:5;
+		}
+		mx|HBox
+		{
+			padding-top:0;
+			padding-left:0;
+			padding-right:0;
+			padding-bottom:0;
+			horizontal-gap:5;
+		}
+		
+		
+		
+		mx|TitleWindow
+		{
+			borderAlpha: 1.0;
+			backgroundAlpha: 1.0;
+			backgroundColor: #ECE9D8;
+			controlBarStyleName: mDIWindowControlBar;
+			header-colors:#CCCCCC,#CCCCCC;
+			borderThickness: 2;
+			border-thickness-left:0;
+			border-thickness-right:0;
+			border-thickness-top:0;
+			borderColor: #CCCCCC;
+			paddingBottom: 0;
+			paddingLeft: 0;
+			paddingRight: 0;
+			paddingTop: 0;
+			vertical-gap:0;
+			horizontal-gap:0;
+			borderStyle: solid;
+			corner-radius:4;
+			header-height:25;
+			
+			close-button-skin: ClassReference("null");
+			close-button-down-skin:ClassReference("null");
+			close-button-over-skin:ClassReference("null");
+			close-button-up-skin:ClassReference("null");
+			close-button-disabled-skin:ClassReference("null");
+		}
+		
+		mx|Panel
+		{
+			borderAlpha: 1.0;
+			backgroundAlpha: 1.0;
+			backgroundColor: #ECE9D8;
+			controlBarStyleName: mDIWindowControlBar;
+			header-colors:#CCCCCC,#CCCCCC;
+			borderThickness: 2;
+			border-thickness-left:0;
+			border-thickness-right:0;
+			border-thickness-top:0;
+			borderColor: #CCCCCC;
+			paddingBottom: 0;
+			paddingLeft: 0;
+			paddingRight: 0;
+			paddingTop: 0;
+			vertical-gap:0;
+			horizontal-gap:0;
+			borderStyle: solid;
+			corner-radius:4;
+			header-height:25;
+		}
+		
+		
+		mx|Button
+		{
+			corner-radius:4;
+		}
+		
+		mx|LinkButton
+		{
+			
+			fontWeight:bold;
+			selectionColor:#dddddd;
+			rollOverColor:#dddddd;
+			textRollOverColor:#4786B1;
+		}
+		
+		
+	</fx:Style> 
+	<fx:Script>
+		<![CDATA[
+			import events.ProjectEvent;
+			
+			import mx.events.FlexEvent;
+			
+			import vo.UserVO;
+			
+			/**
+			 * open statr page
+			 */ 
+			protected function init(event:FlexEvent):void
+			{
+				pageLogin.init();	
+				pageLogin.addEventListener(ProjectEvent.EVENT_LOGIN, onLogin);
+				pageLogin.addEventListener(ProjectEvent.EVENT_OPEN_REGISTRATION, onOpenRegistration);
+				pageRegistration.addEventListener(ProjectEvent.EVENT_LOGIN, onLogin);
+				pageRegistration.addEventListener(ProjectEvent.EVENT_OPEN_LOGIN, onOpenLogin);
+				pageProfile.addEventListener(ProjectEvent.EVENT_OPEN_LOGIN, onOpenLogin);
+			}
+			
+			/**
+			 * when login complete open profile page
+			 */ 
+			private function onLogin(e:ProjectEvent):void
+			{
+				currentState = "StateProfile";
+				pageProfile.init(new UserVO(e.data));
+			}
+			
+			/**
+			 * open registration page
+			 */ 
+			private function onOpenRegistration(e:ProjectEvent):void
+			{
+				currentState = "StateRegistration";
+				pageRegistration.init();
+			}
+			/**
+			 * open login page
+			 */ 
+			protected function onOpenLogin(event:Event):void
+			{
+				currentState = "StateLogin";
+				pageLogin.init();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<login:PageLogin 
+		id="pageLogin"
+		visible.StateLogin="true"
+		visible= "false"
+		width="100%"
+		height="100%"
+		/>
+	
+	<registration:PageRegistration 
+		id="pageRegistration"
+		visible.StateRegistration="true"
+		visible= "false"
+		width="100%"
+		height="100%"
+		/>
+	
+	<profile:PageProfile
+		id="pageProfile"
+		width="100%"
+		height="100%"
+		visible.StateProfile="true"
+		visible= "false"
+		/>
+		
+		
+</s:Application>

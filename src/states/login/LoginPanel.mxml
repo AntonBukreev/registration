@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	showCloseButton="true"
+	close="{cancel()}"
+	
+	layout="absolute" 
+	width="264" 
+	height="120"
+	title="Авторизация" xmlns:s="library://ns.adobe.com/flex/spark"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	>
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import events.ProjectEvent;
+			
+			import managers.DataManager;
+			
+			import mx.controls.Alert;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			
+			import vo.UserVO;
+
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function cancel():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function onLogin(response:Object):void
+			{
+				btnSend.enabled = true;
+				
+				if(response.status == DataManager.STATUS_OK)
+				{
+					var e:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_LOGIN);
+					e.data = response.data;
+					this.dispatchEvent(e);
+					cancel();
+				}
+				else
+				{
+					Alert.show("Неверный логин или пароль! Измените значения и повторите попытку.","Предупреждение");
+				}
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function get validate():Boolean
+			{
+				if (inpLogin.text.length>0 && inpPass.text.length>0)
+					
+					return true;
+				return false;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validateData():void
+			{
+				if(validateAll)
+				{
+					btnSend.enabled = false;
+					DataManager.login(inpLogin.text, inpPass.text, onLogin);
+				}
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validateString(inp:TextInput):Boolean
+			{
+				stringValidator.source = inp;
+				var e:ValidationResultEvent = stringValidator.validate();
+				if(e.results==null || e.results.length<1) return true;
+				return false;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			public function get validateAll():Boolean
+			{
+				if (!validateString(inpLogin)  || !validateString(inpPass)) return false;
+				return true;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			
+			protected function onRegistrationClick(event:MouseEvent):void
+			{
+				var e:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_OPEN_REGISTRATION);
+				this.dispatchEvent(e);
+				cancel();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:StringValidator id="stringValidator" 
+						property="text" 
+						required="true" 
+						triggerEvent="itemClick" 
+						tooShortError="Введите текст"
+						tooLongError="Слишком длинный текст"
+						requiredFieldError="Введите текст"
+						minLength="1" 
+						maxLength="100" 
+						/>
+	
+	<mx:VBox width="100%" 
+			 height="100%" 
+			 paddingRight="10" 
+			 paddingLeft="10" 
+			 paddingTop="5" 
+			 paddingBottom="3"
+			 verticalGap="3"
+			 >
+		<mx:Form 
+			width="100%" 
+			height="100%"  
+			verticalGap="4"  
+			paddingTop="0" 
+			paddingBottom="0" 
+			paddingLeft="7" 
+			paddingRight="7" 
+			>
+			<mx:FormItem 
+				label="Логин" 
+				width="100%" 
+				height="25" 
+				>
+				<mx:TextInput 
+					id="inpLogin" 
+					width="100%" 
+					height="25" 
+					maxChars="100" 
+					restrict="а-я\А-Я\a-z\A-Z\.\0-9\,\-\ "
+					text=""
+					/>
+			</mx:FormItem>
+			<mx:FormItem 
+				label="Пароль" 
+				width="100%" 
+				height="25" 
+				>
+				<mx:TextInput 
+					id="inpPass" 
+					width="100%" 
+					height="25" 
+					maxChars="100" 
+					restrict="а-я\А-Я\a-z\A-Z\.\0-9\,\-\ "
+					text=""
+					displayAsPassword="true"
+					/>
+			</mx:FormItem>
+		</mx:Form>
+		<mx:HBox height="25" width="100%" paddingTop="1">
+			<mx:Spacer width="100%"/>
+			<mx:LinkButton label="Регистрация" click="onRegistrationClick(event)"/>
+			<mx:Button id="btnSend" label="Войти" click="{validateData()}"/>
+			<mx:Spacer width="100%"/>
+		</mx:HBox>
+	</mx:VBox>	
+	
+	
+	
+	
+	
+</mx:TitleWindow>

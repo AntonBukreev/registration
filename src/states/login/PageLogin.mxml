@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 >
+	
+	<fx:Script>
+		<![CDATA[
+			import events.ProjectEvent;
+			
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
+			public function init():void
+			{
+				var win:IFlexDisplayObject;
+				win = PopUpManager.createPopUp(this,LoginPanel,true);
+				win.addEventListener(ProjectEvent.EVENT_LOGIN, onLogin);
+				win.addEventListener(ProjectEvent.EVENT_OPEN_REGISTRATION, onOpenRegistration);
+				PopUpManager.centerPopUp(win);
+			}
+			
+			private function onLogin(e:ProjectEvent):void
+			{
+				var event:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_LOGIN, e.data);
+				this.dispatchEvent(event);
+			}
+			
+			private function onOpenRegistration(e:ProjectEvent):void
+			{
+				var event:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_OPEN_REGISTRATION);
+				this.dispatchEvent(event);
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+</s:Group>

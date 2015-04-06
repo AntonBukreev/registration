@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:registration="states.registration.*"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	showCloseButton="true"
+	close="{cancel()}"
+	
+	layout="absolute" 
+	width="496" 
+	height="358"
+	title="Регистрация" 
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off" 
+	addedToStage="titlewindow1_addedToStageHandler(event)"
+	>
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import events.ProjectEvent;
+			
+			import flashx.textLayout.elements.BreakElement;
+			
+			import managers.DataManager;
+			
+			import mx.controls.Alert;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.utils.object_proxy;
+			
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function cancel():void
+			{
+				PopUpManager.removePopUp(this);
+			}
+
+			/**
+			 * when Login success
+			 */ 
+			private function onLogin(user:Object):void
+			{
+				var e:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_LOGIN);
+				e.data = user;
+				this.dispatchEvent(e);
+				cancel();
+			}
+			
+			/**
+			 * on login btn click
+			 */ 
+			protected function onBack(event:MouseEvent):void
+			{
+				var e:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_OPEN_LOGIN);
+				this.dispatchEvent(e);
+				cancel();
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validateData():void
+			{
+				if(validateAll)
+				{	
+					btnSend.enabled = false;
+					DataManager.registrate(inpLogin.text, inpPass.text, inpEmail.text, inpFirstName.text, inpSecondName.text, inpCity.text, inpBirthYear.text, inpComment.text, onRegistrate); 
+				}
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validateString(inp:TextInput):Boolean
+			{
+				stringValidator.source = inp;
+				var e:ValidationResultEvent = stringValidator.validate();
+				if(e.results==null || e.results.length<1) return true;
+				return false;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validateYear(inp:TextInput):Boolean
+			{
+				yearValidator.source = inp;
+				var e:ValidationResultEvent = yearValidator.validate();
+				if(e.results==null || e.results.length<1) return true;
+				return false;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validatePassLength(inp:TextInput):Boolean
+			{
+				passValidatorLength.source = inp;
+				var e:ValidationResultEvent = passValidatorLength.validate();
+				if(e.results==null || e.results.length<1) return true;
+				return false;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validateEmail(inp:TextInput):Boolean
+			{
+				emailValidator.source = inp;
+				var e:ValidationResultEvent = emailValidator.validate();
+				if(e.results==null || e.results.length<1) return true;
+				return false;
+			}
+			//-----------------------------------
+			//-----------------------------------
+			//-----------------------------------
+			private function validatePass(inp:TextInput):Boolean
+			{
+				passValidator.original = inpPass.text;
+				passValidator.source = inp;
+				var e:ValidationResultEvent = emailValidator.validate();
+				if(e.results==null || e.results.length<1) return true;
+				return false;
+			}
+			/**
+			 * validate all fields
+			 */ 
+			public function get validateAll():Boolean
+			{
+				if (!validateString(inpLogin)  || !validatePassLength(inpPass) || !validateEmail(inpEmail) || !validatePass(inpConf)) return false;
+				if (!validateString(inpFirstName)  || !validateString(inpSecondName) || !validateString(inpCity) || !validateYear(inpBirthYear)) return false;
+				return true;
+			}
+
+			
+			protected function titlewindow1_addedToStageHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+			private function onRegistrate(response:Object):void
+			{
+				btnSend.enabled = true;
+				switch (response.status)
+				{
+					case DataManager.STATUS_OK:
+						var e:ProjectEvent = new ProjectEvent(ProjectEvent.EVENT_LOGIN);
+						e.data = response.data;
+						this.dispatchEvent(e);
+						cancel();
+						break;
+					
+					case DataManager.STATUS_DUPLICATE_LOGIN:
+						Alert.show("Сожалею, но логин " + inpLogin.text + " уже занят, используйте другой", "Ошибка регистрации");
+						inpLogin.text = "";
+						validateData();
+						break;
+					
+					case DataManager.STATUS_DUPLICATE_EMAIL:
+						Alert.show("Сожалею, но email " + inpEmail.text + " уже занят, используйте другой", "Ошибка регистрации");
+						inpEmail.text = "";
+						validateData();
+						break;
+					
+					case DataManager.STATUS_INCOREECT_DATA:
+						Alert.show("Произошла непредвиденная ошибка, сообщите администрации", "Ошибка регистрации");
+						break;
+				}
+				
+			}
+			
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:StringValidator id="stringValidator" 
+						property="text" 
+						required="true" 
+						triggerEvent="itemClick" 
+						tooShortError="Введите текст"
+						tooLongError="Слишком длинный текст"
+						requiredFieldError="Введите текст"
+						minLength="1" 
+						maxLength="20" 
+						/>
+	
+	
+	
+	<mx:EmailValidator 
+		id="emailValidator"
+		property="text"
+		required="true" 
+		invalidCharError="Адрес введен некорректно"
+		requiredFieldError="Введите email"
+		invalidDomainError= "Адрес введен некорректно, проверьте домен." 
+		invalidIPDomainError="Адрес введен некорректно, проверьте домен." 
+		invalidPeriodsInDomainError="Адрес введен некорректно, проверьте домен." 
+		missingAtSignError="Адрес введен некорректно, не хватает символа @."
+		missingPeriodInDomainError="Адрес введен некорректно, проверьте домен." 
+		missingUsernameError="Адрес введен некорректно." 
+		tooManyAtSignsError="Адрес введен некорректно, много символов @."
+		/>
+	
+	<registration:PassValidator 
+		id="passValidator"
+		property="text" 
+		required="true" 
+		triggerEvent="itemClick" 
+		tooShortError="Введите пароль"
+		tooLongError="Слишком длинный пароль"
+		requiredFieldError="Введите пароль"
+		minLength="1" 
+		maxLength="20" 
+		/>
+	
+	
+	<mx:StringValidator id="passValidatorLength" 
+						property="text" 
+						required="true" 
+						triggerEvent="itemClick" 
+						tooShortError="Слишком простой пароль, введите минимум 6 символов"
+						tooLongError="Слишком длинный пароль"
+						requiredFieldError="Введите пароль"
+						minLength="6" 
+						maxLength="20" 
+						/>
+	
+	<mx:StringValidator id="yearValidator" 
+						property="text" 
+						required="true" 
+						triggerEvent="itemClick" 
+						tooShortError="Введите 4 цифры"
+						tooLongError="Введите 4 цифры"
+						requiredFieldError="Введите год"
+						minLength="4" 
+						maxLength="4" 
+						/>
+	
+	<mx:VBox width="100%" 
+			 height="100%" 
+			 paddingRight="10" 
+			 paddingLeft="10" 
+			 paddingTop="5" 
+			 paddingBottom="3"
+			 verticalGap="3"
+			 >
+		<mx:Form 
+			width="100%" 
+			height="100%"  
+			verticalGap="4"  
+			paddingTop="0" 
+			paddingBottom="0" 
+			paddingLeft="7" 
+			paddingRight="7" 
+			
+			>
+			<mx:FormItem 
+				label="Логин" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpLogin" 
+					width="100%" 
+					height="25" 
+					maxChars="20" 
+					restrict="а-я\А-Я\a-z\A-Z\0-9\ "
+					text=""
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="email" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpEmail" 
+					width="100%" 
+					height="25" 
+					maxChars="60" 
+					restrict="а-я\А-Я\a-z\A-Z\.\@\0-9\"
+					text=""
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Пароль" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpPass" 
+					width="100%" 
+					height="25" 
+					maxChars="20" 
+					restrict="а-я\А-Я\a-z\A-Z\.\0-9\,\-\ "
+					text=""
+					displayAsPassword="true"
+					/>
+			</mx:FormItem>
+			<mx:FormItem 
+				label="Подтвердите пароль" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpConf" 
+					width="100%" 
+					height="25" 
+					maxChars="20" 
+					restrict="а-я\А-Я\a-z\A-Z\.\0-9\,\-\ "
+					text=""
+					displayAsPassword="true"
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Имя" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpFirstName" 
+					width="100%" 
+					height="25" 
+					maxChars="20" 
+					restrict="а-я\А-Я\a-z\A-Z\.\"
+					text=""
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Фамилия" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpSecondName" 
+					width="100%" 
+					height="25" 
+					maxChars="20" 
+					restrict="а-я\А-Я\a-z\A-Z\.\"
+					text=""
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Год рождения" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpBirthYear" 
+					width="100%" 
+					height="25" 
+					maxChars="4" 
+					restrict="0-9\ "
+					text=""
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Место проживания" 
+				width="100%" 
+				height="25" 
+				required="true"
+				>
+				<mx:TextInput 
+					id="inpCity" 
+					width="100%" 
+					height="25" 
+					maxChars="100" 
+					restrict="а-я\А-Я\a-z\A-Z\.\0-9\,\-\ "
+					text=""
+					/>
+			</mx:FormItem>
+			
+			<mx:FormItem 
+				label="Дополнительные сведения" 
+				width="100%" 
+				height="58" 
+				
+				>
+				<mx:TextInput 
+					id="inpComment" 
+					width="100%" 
+					height="50" 
+					maxChars="200" 
+					restrict="а-я\А-Я\a-z\A-Z\.\0-9\,\-\ "
+					text=""
+					/>
+			</mx:FormItem>
+			
+			
+		</mx:Form>
+		<mx:HBox height="25" width="100%" paddingTop="1">
+			<mx:Spacer width="100%"/>
+			
+			<mx:LinkButton label="Авторизация" click="onBack(event)"/>
+			<mx:Spacer width="100%"/>
+			<mx:Button id="btnSend" label="Зарегистрироваться" click="{validateData()}"/>
+			<mx:Spacer width="100%"/>
+		</mx:HBox>
+	</mx:VBox>	
+	
+	
+	
+	
+	
+</mx:TitleWindow>
